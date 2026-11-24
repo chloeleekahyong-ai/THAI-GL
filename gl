@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>泰百藝人終極挑戰 | Thai GL Quiz</title>
+    <style>
+        :root {
+            --primary: #ff4d8d;
+            --secondary: #8a2be2;
+            --bg-gradient: linear-gradient(135deg, #ffe6f0 0%, #f3e6ff 100%);
+            --card-bg: #ffffff;
+            --text-dark: #2d2d2d;
+            --text-muted: #666666;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, 'Microsoft JhengHei', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            background: var(--bg-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-dark);
+        }
+
+        .container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 600px;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(255, 77, 141, 0.15);
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #f8f9fa;
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #ffe0ec;
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .question-box {
+            font-size: 1.2rem;
+            font-weight: 600;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff9fb;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px dashed #ffc2d9;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option-btn {
+            background: #ffffff;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background: #fff0f6;
+            transform: translateY(-2px);
+        }
+
+        .option-btn.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .option-btn.wrong {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .feedback-box {
+            min-height: 50px;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            padding: 10px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .feedback-box.show {
+            display: block;
+            background: #f1f3f5;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 77, 141, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .rank-title {
+            font-size: 1.6rem;
+            color: var(--secondary);
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="start-screen">
+        <h1>💖 泰百藝人終極挑戰 💖</h1>
+        <p class="subtitle">涵蓋 GMMTV 眾多女神與各大熱門泰百 CP，測試你的入坑深度！</p>
+        <div style="text-align: left; background: #f9f9f9; padding: 15px 20px; border-radius: 12px; margin-bottom: 25px; font-size: 0.9rem; line-height: 1.6;">
+            <strong>📋 遊戲規則：</strong><br>
+            1. 每次挑戰隨機抽取 <strong>10 題</strong>（包含藝人線索、GMMTV 陣容、作品與 CP 配對）。<br>
+            2. 答對一題得 10 分，連續答對會有額外連擊獎勵！<br>
+            3. 題庫內建超過 20 位泰百女藝人資料，可重複遊玩刷題。
+        </div>
+        <button class="btn-primary" onclick="startGame()">開始挑戰</button>
+    </div>
+
+    <div id="quiz-screen" class="hidden">
+        <div class="status-bar">
+            <span>題數: <span id="question-num">1</span>/10</span>
+            <span>連擊: 🔥<span id="streak">0</span></span>
+            <span>分數: <span id="score">0</span></span>
+        </div>
+        
+        <span class="badge" id="category-badge">GMMTV 陣容</span>
+        
+        <div class="question-box" id="question-text">
+            題目載入中...
+        </div>
+
+        <div class="options-grid" id="options-container"></div>
+
+        <div class="feedback-box" id="feedback-box"></div>
+
+        <button class="btn-primary hidden" id="next-btn" onclick="nextQuestion()">下一題 ➔</button>
+    </div>
+
+    <div id="result-screen" class="hidden">
+        <h1>🎉 挑戰完成！</h1>
+        <p>你的最終得分是</p>
+        <div style="font-size: 3rem; font-weight: bold; color: var(--primary);" id="final-score">0</div>
+        <div class="rank-title" id="rank-title">泰百資深觀察家</div>
+        <p id="rank-desc" style="color: var(--text-muted); margin-bottom: 25px;"></p>
+        <button class="btn-primary" onclick="startGame()">再玩一次 🔄</button>
+    </div>
+</div>
+
+<script>
+    const questionBank = [
+        {
+            category: "GMMTV 元老級 CP",
+            question: "在 GMMTV 首部主打百合劇《地球傾斜23.5度》中，飾演內向學霸「Ongsa」的藝人是誰？",
+            options: ["Milk Pansa", "Love Pattranite", "View Benyapa", "June Wanwimol"],
+            answer: "Milk Pansa",
+            fact: "Milk Pansa 飾演暗戀 Sun 的 Ongsa，與 Love Pattranite 組成的 MilkLove 是 GMMTV 的超人氣女女 CP！"
+        },
+        {
+            category: "GMMTV 陣容",
+            question: "在《地球傾斜23.5度》中飾演校園人氣王「Sun」，同時也擁有個人美妝品牌 Twenty Wendy 的藝人是？",
+            options: ["Love Pattranite", "Tu Tontawan", "Prim Chanikarn", "Jane Ramida"],
+            answer: "Love Pattranite",
+            fact: "Love 不僅演技自然，也是 GMMTV 裡非常受歡迎的甜妹代表，粉絲名為 MuvMuv。"
+        },
+        {
+            category: "GMMTV 實力派",
+            question: "主演泰版《致我們單純的小美好》，並在《Pluto 冥王星之戀》中一人分飾雙胞胎姐妹的 GMMTV 女藝人是誰？",
+            options: ["Namtan Tipnaree", "Film Rachanun", "Aye Sarunchana", "Mook Worranit"],
+            answer: "Namtan Tipnaree",
+            fact: "Namtan（糖妹）演技極具爆發力，與 Film Rachanun 搭檔主演《Pluto 冥王星之戀》大受好評！"
+        },
+        {
+            category: "GMMTV 陣容",
+            question: "曾主演《My Precious 初戀》，並與 Namtan 搭檔演出《Pluto 冥王星之戀》中盲人女孩 May 的藝人是？",
+            options: ["Film Rachanun", "Jan Ployshompoo", "Fah Yongwaree", "Piploy Kanyarat"],
+            answer: "Film Rachanun",
+            fact: "Film 擁有甜美外型與細膩演技，與 Namtan 組成的 NamtanFilm 擁有極高人氣。"
+        },
+        {
+            category: "GMMTV 副 CP 魅力",
+            question: "在《地球傾斜23.5度》中飾演外冷內熱的「Aylin」（自稱外星人），讓觀眾印象深刻的 GMMTV 女藝人是？",
+            options: ["View Benyapa", "June Wanwimol", "Ciize Rutricha", "Earn Preeyaphat"],
+            answer: "View Benyapa",
+            fact: "View 憑藉《23.5》中呆萌又酷帥的 Aylin 一角圈粉無數！"
+        },
+        {
+            category: "GMMTV 陣容",
+            question: "在《地球傾斜23.5度》中飾演勇敢追愛「Luna」，經常與 View 搭檔的 GMMTV 女藝人是？",
+            options: ["June Wanwimol", "Jamie Juthapich", "JingJing Yu", "Pahn Pathitta"],
+            answer: "June Wanwimol",
+            fact: "June 曾出演過《特長生》、《只因我們天生一對》等多部熱門劇集，演技相當成熟。"
+        },
+        {
+            category: "GMMTV 新生代 CP",
+            question: "主演 GMMTV 百合劇《Us 我們的愛》（改編自小說），與 Bonnie 搭檔的短髮酷帥女藝人是？",
+            options: ["Emi Thasorn", "Lookjun Bhasidi", "Bimbeam Praekwan", "Mook Worranit"],
+            answer: "Emi Thasorn",
+            fact: "Emi 擁有獨特的文藝與帥氣氣質，與 Bonnie 組成的 EmiBonnie 是 GMMTV 備受矚目的新生代百合組合。"
+        },
+        {
+            category: "GMMTV 陣容",
+            question: "在《Pluto 冥王星之戀》中也有亮眼表現，與好姐妹 Ciize 經常一起拍片互動的 GMMTV 女藝人是？",
+            options: ["Kapook Phatchara", "Godji Tachakorn", "Goy Arachaporn", "Gigie Chanunphat"],
+            answer: "Kapook Phatchara",
+            fact: "Kapook 與 Ciize 的好交情與超強 CP 感，讓「KapookCiize」在粉絲圈中呼聲極高！"
+        },
+        {
+            category: "GMMTV 唱跳才女",
+            question: "曾是女團 SIZZY 成員，身材嬌小但舞蹈實力超強，常與 Kapook 組隊的 GMMTV 女藝人是？",
+            options: ["Ciize Rutricha", "Jane Ramida", "Jan Ployshompoo", "Aye Sarunchana"],
+            answer: "Ciize Rutricha",
+            fact: "Ciize（西施）充滿活力且極具綜藝感，在《23.5》中也有客串演出。"
+        },
+        {
+            category: "GMMTV 氣質女神",
+            question: "在 GMMTV 眾多戲劇中展現高冷御姐氣質，並參演《Whale Store xoxo》等百合題材作品的混血感美女是？",
+            options: ["JingJing Yu", "Mim Rattanawadee", "Sammy Samantha", "Parn Nachcha"],
+            answer: "JingJing Yu",
+            fact: "JingJing 擁有模特兒般的修長身材與高級臉，加入 GMMTV 後受到許多關注。"
+        },
+        {
+            category: "泰百天花板傳奇",
+            question: "主演泰國首部爆紅百合劇《粉紅理論 (GAP The Series)》，飾演霸道總裁「Sam」的是哪位藝人？",
+            options: ["Freen Sarocha", "Becky Armstrong", "Engfa Waraha", "Charlotte Austin"],
+            answer: "Freen Sarocha",
+            fact: "Freen 與 Becky 組成的 FreenBecky 席捲全球，開啟了泰國 GL 劇的黃金時代！"
+        },
+        {
+            category: "泰百人氣王",
+            question: "擁有泰英混血血統，在《粉紅理論》中飾演可愛實習生「Mon」的女藝人是？",
+            options: ["Becky Armstrong", "Orm Kornnaphat", "Yoko Apasra", "Sonya Saranphat"],
+            answer: "Becky Armstrong",
+            fact: "Becky 年紀輕輕便展現驚人魅力，除了演技外，也是時尚界的寵兒。"
+        },
+        {
+            category: "CH3 現象級 CP",
+            question: "擁有中泰混血基因、粵語流利，在三台百合劇《我們的秘密》中飾演醫生「Fahlada」的是？",
+            options: ["Lingling Kwong (鄺玲玲)", "Orm Kornnaphat", "Faye Peraya", "Lookmhee Punyapat"],
+            answer: "Lingling Kwong (鄺玲玲)",
+            fact: "鄺玲玲在香港長大，憑藉精緻五官與深情演技在《我們的秘密》中一炮而紅！"
+        },
+        {
+            category: "CH3 現象級 CP",
+            question: "在《我們的秘密》中飾演大明星「Earn」，私下個性活潑開朗、愛撒嬌的金髮甜心是？",
+            options: ["Orm Kornnaphat", "Love Pattranite", "Film Rachanun", "Miu Natsha"],
+            answer: "Orm Kornnaphat",
+            fact: "LingOrm（鄺玲玲與 Orm）憑藉《我們的秘密》成為亞洲現象級的百合 CP。"
+        },
+        {
+            category: "選美皇后 CP",
+            question: "曾獲得泰國萬國小姐 (Miss Grand Thailand) 冠軍，與 Charlotte Austin 組成超人氣 CP「Englot」的是？",
+            options: ["Engfa Waraha", "Faye Peraya", "Lux Sulax", "Heidi Amanda"],
+            answer: "Engfa Waraha",
+            fact: "Engfa 歌喉極佳且舞台魅力十足，與 Charlotte 的真實互動吸引無數死忠粉絲。"
+        },
+        {
+            category: "年下年上虐戀",
+            question: "主演《空白 (Blank The Series)》，以成熟優雅的御姐魅力與 Yoko 搭檔的資深選美冠軍是？",
+            options: ["Faye Peraya", "Namtan Tipnaree", "Jane Ramida", "Grace Budsarin"],
+            answer: "Faye Peraya",
+            fact: "Faye 曾是 2016 年泰國萬國小姐冠軍，在《空白》中飾演的 Khun Nueng 氣場全開。"
+        }
+    ];
+
+    let currentQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let streak = 0;
+    const totalQuestions = 10;
+
+    function shuffleArray(array) {
+        let shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
+
+    function startGame() {
+        currentQuestions = shuffleArray(questionBank).slice(0, totalQuestions);
+        currentIndex = 0;
+        score = 0;
+        streak = 0;
+
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.add('hidden');
+        document.getElementById('quiz-screen').classList.remove('hidden');
+
+        updateStatus();
+        loadQuestion();
+    }
+
+    function updateStatus() {
+        document.getElementById('question-num').innerText = currentIndex + 1;
+        document.getElementById('score').innerText = score;
+        document.getElementById('streak').innerText = streak;
+    }
+
+    function loadQuestion() {
+        const q = currentQuestions[currentIndex];
+        document.getElementById('category-badge').innerText = q.category;
+        document.getElementById('question-text').innerText = q.question;
+        
+        const feedbackBox = document.getElementById('feedback-box');
+        feedbackBox.classList.remove('show');
+        feedbackBox.innerText = '';
+        
+        document.getElementById('next-btn').classList.add('hidden');
+
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+
+        const shuffledOptions = shuffleArray(q.options);
+
+        shuffledOptions.forEach(option => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = option;
+            btn.onclick = () => selectAnswer(btn, option, q);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function selectAnswer(selectedBtn, selectedOption, questionObj) {
+        const allBtns = document.querySelectorAll('.option-btn');
+        allBtns.forEach(btn => btn.disabled = true);
+
+        const feedbackBox = document.getElementById('feedback-box');
+        feedbackBox.classList.add('show');
+
+        if (selectedOption === questionObj.answer) {
+            selectedBtn.classList.add('correct');
+            streak++;
+            const bonus = streak >= 2 ? 5 : 0;
+            score += (10 + bonus);
+            feedbackBox.innerHTML = `✅ <strong>答對了！</strong> ${bonus > 0 ? `(連擊獎勵 +${bonus}分！)` : ''}<br><span style="color:#555;">💡 小知識：${questionObj.fact}</span>`;
+        } else {
+            selectedBtn.classList.add('wrong');
+            streak = 0;
+            allBtns.forEach(btn => {
+                if (btn.innerText === questionObj.answer) {
+                    btn.classList.add('correct');
+                }
+            });
+            feedbackBox.innerHTML = `❌ <strong>答錯囉！</strong> 正確答案是 <strong>${questionObj.answer}</strong>。<br><span style="color:#555;">💡 小知識：${questionObj.fact}</span>`;
+        }
+
+        updateStatus();
+        document.getElementById('next-btn').classList.remove('hidden');
+    }
+
+    function nextQuestion() {
+        currentIndex++;
+        if (currentIndex < totalQuestions) {
+            updateStatus();
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        document.getElementById('final-score').innerText = score;
+
+        const rankTitle = document.getElementById('rank-title');
+        const rankDesc = document.getElementById('rank-desc');
+
+        if (score >= 100) {
+            rankTitle.innerText = "👑 泰百百科全書・骨灰級女神粉";
+            rankDesc.innerText = "太強了！無論是 GMMTV 還是各大廠牌的女藝人，全都逃不過你的法眼！";
+        } else if (score >= 70) {
+            rankTitle.innerText = "💖 資深泰百追劇達人";
+            rankDesc.innerText = "你對泰百圈非常熟悉！大部分的熱門 CP 與作品你都如數家珍。";
+        } else if (score >= 40) {
+            rankTitle.innerText = "🌱 潛力股泰百新粉";
+            rankDesc.innerText = "已經認識不少女神囉！多刷幾部 GMMTV 的百合劇很快就能晉級！";
+        } else {
+            rankTitle.innerText = "🐣 剛入坑的萌新觀察員";
+            rankDesc.innerText = "歡迎來到泰百的坑底！快去補看《地球傾斜23.5度》和《Pluto 冥王星之戀》吧！";
+        }
+    }
+</script>
+
+</body>
+</html>
