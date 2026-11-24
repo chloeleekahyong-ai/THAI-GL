@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>泰百藝人終極挑戰 | Thai GL Quiz</title>
+    <style>
+        :root {
+            --primary: #ff4d8d;
+            --secondary: #8a2be2;
+            --bg-gradient: linear-gradient(135deg, #ffe6f0 0%, #f3e6ff 100%);
+            --card-bg: #ffffff;
+            --text-dark: #2d2d2d;
+            --text-muted: #666666;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, 'Microsoft JhengHei', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            background: var(--bg-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-dark);
+        }
+
+        .container {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 600px;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(255, 77, 141, 0.15);
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-top: 0;
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            background: #f3e6ff;
+            color: var(--secondary);
+            border: 2px solid transparent;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #f8f9fa;
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #ffe0ec;
+            color: var(--primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .question-box {
+            font-size: 1.15rem;
+            font-weight: 600;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff9fb;
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px dashed #ffc2d9;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option-btn {
+            background: #ffffff;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background: #fff0f6;
+            transform: translateY(-2px);
+        }
+
+        .option-btn.correct {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+
+        .option-btn.wrong {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+
+        .option-btn:disabled {
+            cursor: default;
+        }
+
+        .feedback-box {
+            min-height: 50px;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            padding: 12px 15px;
+            border-radius: 10px;
+            display: none;
+            text-align: left;
+        }
+
+        .feedback-box.show {
+            display: block;
+            background: #f1f3f5;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 77, 141, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .rank-title {
+            font-size: 1.5rem;
+            color: var(--secondary);
+            margin: 15px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 開始畫面 -->
+    <div id="start-screen">
+        <h1>💖 泰百藝人終極挑戰 💖</h1>
+        <p class="subtitle">涵蓋 GMMTV 眾多女神與各大熱門泰百 CP，測試你的入坑深度！</p>
+        
+        <div class="mode-selector">
+            <button class="mode-btn active" id="mode-all" onclick="setMode('all')">🌟 全部泰百綜合場</button>
+            <button class="mode-btn" id="mode-gmmtv" onclick="setMode('gmmtv')">🏢 GMMTV 專屬場</button>
+        </div>
+
+        <div style="text-align: left; background: #f9f9f9; padding: 15px 20px; border-radius: 12px; margin-bottom: 25px; font-size: 0.9rem; line-height: 1.6;">
+            <strong>📋 遊戲規則：</strong><br>
+            1. 每次挑戰隨機抽取 <strong>10 題</strong>（包含藝人線索、代表作品與 CP 配對）。<br>
+            2. 答對一題得 <strong>10 分</strong>，連續答對 2 題以上每題額外 <strong>+5 分</strong>連擊獎勵！<br>
+            3. 內建 20 題完整題庫（含 MilkLove、NamtanFilm、ViewJune、EmiBonnie、KapookCiize、LingOrm、FreenBecky 等），可重複刷題。
+        </div>
+        <button class="btn-primary" onclick="startGame()">開始挑戰</button>
+    </div>
+
+    <!-- 遊戲畫面 -->
+    <div id="quiz-screen" class="hidden">
+        <div class="status-bar">
+            <span>題數: <span id="question-num">1</span>/10</span>
+            <span>連擊: 🔥<span id="streak">0</span></span>
+            <span>分數: <span id="score">0</span></span>
+        </div>
+        
+        <span class="badge" id="category-badge">GMMTV 陣容</span>
+        
+        <div class="question-box" id="question-text">
+            題目載入中...
+        </div>
+
+        <div class="options-grid" id="options-container"></div>
+
+        <div class="feedback-box" id="feedback-box"></div>
+
+        <button class="btn-primary hidden" id="next-btn" onclick="nextQuestion()">下一題 ➔</button>
+    </div>
+
+    <!-- 結算畫面 -->
+    <div id="result-screen" class="hidden">
+        <h1>🎉 挑戰完成！</h1>
+        <p>你的最終得分是</p>
+        <div style="font-size: 3rem; font-weight: bold; color: var(--primary);" id="final-score">0</div>
+        <div class="rank-title" id="rank-title">泰百資深觀察家</div>
+        <p id="rank-desc" style="color: var(--text-muted); margin-bottom: 25px; line-height: 1.5;"></p>
+        <button class="btn-primary" onclick="resetToStart()">返回主畫面 🔄</button>
+    </div>
+</div>
+
+<script>
+    const questionBank = [
+        // GMMTV 題庫 (isGmmtv: true)
+        {
+            isGmmtv: true,
+            category: "GMMTV 元老級 CP",
+            question: "在 GMMTV 首部主打百合劇《地球傾斜23.5度》中，飾演內向學霸「Ongsa」的藝人是誰？",
+            options: ["Milk Pansa", "Love Pattranite", "View Benyapa", "June Wanwimol"],
+            answer: "Milk Pansa",
+            fact: "Milk Pansa 飾演暗戀 Sun 的 Ongsa，與 Love Pattranite 組成的 MilkLove 是 GMMTV 的超人氣女女 CP！"
+        },
+        {
+            isGmmtv: true,
+            category: "GMMTV 陣容",
+            question: "在《地球傾斜23.5度》中飾演校園人氣王「Sun」，同時也擁有個人美妝品牌 Twenty Wendy 的藝人是？",
+            options: ["Love Pattranite", "Tu Tontawan", "Prim Chanikarn", "Jane Ramida"],
+            answer: "Love Pattranite",
+            fact: "Love 不僅演技自然，也是 GMMTV 裡非常受歡迎的甜妹代表，粉絲名為 MuvMuv。"
+        },
+        {
+            isGmmtv: true,
+            category: "GMMTV 實力派",
+            question: "主演泰版《致我們單純的小美好》，並在《Pluto 冥王星之戀》中一人分飾雙胞胎姐妹的 GMMTV 女藝人是誰？",
+            options: ["Namtan Tipnaree", "Film Rachanun", "Aye Sarunchana", "Mook Worranit"],
+            answer: "Namtan Tipnaree",
+            fact: "Namtan（糖妹）演技極具爆發力，與 Film Rachanun 搭檔主演《Pluto 冥王星之戀》大受好評！"
+        },
+        {
+            isGmmtv: true,
+            category: "GMMTV 陣容",
+            question: "曾主演《My Precious 初戀》，並與 Namtan 搭檔演出《Pluto 冥王星之戀》中盲人女孩 May 的藝人是？",
+            options: ["Film Rachanun", "Jan Ployshompoo", "Fah Yongwaree", "Piploy Kanyarat"],
+            answer: "Film Rachanun",
+            fact: "Film 擁有甜美外型與細膩演技，與 Namtan 組成的 NamtanFilm 擁有極高人氣。"
+        },
+        {
+            isGmmtv: true,
+            category: "GMMTV 副 CP 魅力",
+            question: "在《地球傾斜23.5度》中飾演外冷內熱的「Aylin」（自稱外星人），讓觀眾印象深刻的 GMMTV 女藝人是？",
+            options: ["View Benyapa", "June Wanwimol", "Ciize Rutricha", "Earn Preeyaphat"],
+            answer: "View Benyapa",
+            fact: "View 憑藉《23.5》中呆萌又酷帥的 Aylin 一角圈粉無數！"
+        },
+        {
+            isGmmtv: true,
+            category: "GMMTV 陣容",
+            question: "在《地球傾斜23.5度》中飾演勇敢追愛「Luna」，經常與 View 搭檔的 GMMTV 女藝人是？",
+            options: ["June Wanwimol", "Jamie Juthapich", "JingJing Yu", "Pahn Pathitta"],
+            answer: "June Wanwimol",
+            fact: "June 曾出演過《特長生》、《只因我們天生一對》等多部熱門劇集，演技相當成熟。"
+        },
+        {
+            isGmmtv: true,
+            category: "GMMTV 新生代 CP",
+            question: "主演 GMMTV 百合劇《Us 我們的愛》（改編自小說），與 Bonnie 搭檔的短髮酷帥女藝人是？",
+            options: ["Emi Thasorn", "Lookjun Bhasidi", "Bimbeam Praekwan", "Mook Worranit"],
+            answer: "Emi Thasorn",
+            fact: "Emi 擁有獨特的文藝與帥氣氣質，與 Bonnie 組成的 EmiBonnie 是 GMMTV 備受矚目的新生代百合組合。"
+        },
+        {
+            isGmmtv: true,
+            category: "GMMTV 新生代 CP",
+            question: "在 GMMTV 百合劇《Us 我們的愛》中與 Emi Thasorn 搭檔演出，氣質清純甜美的新生代女藝人是？",
+            options: ["Bonnie Pattraphus", "Prim Chanikarn", "Tu Tontawan", "Pahn Pathitta"],
+            answer: "Bonnie Pattraphus",
